@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>趣味單字拼拼樂</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #f0f4f8;
+            overflow: hidden; 
+            font-family: '微軟正黑體', sans-serif;
+        }
+
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('bg.png'); 
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+        }
+
+        .header-title {
+            position: absolute;
+            top: 25px;
+            left: 35px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 15px 40px;
+            border-radius: 40px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            border: 4px solid #ffcc00;
+            z-index: 20;
+        }
+
+        .game-layout {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px; 
+            box-sizing: border-box;
+        }
+
+        .wheel-area {
+            flex: 1; 
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0; 
+        }
+
+        /* 讓容器完全緊貼底板，消除多餘的空白縫隙 */
+        .wheel-container {
+            position: relative;
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+        }
+
+        .base-layer {
+            max-height: 90vh;
+            max-width: 100%; 
+            height: auto;
+            display: block; /* 消除圖片下方的預設空白 */
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+        }
+
+        /* 【絕對置中核心修復】
+           使用 50% 加上 translate(-50%, -50%)，
+           保證外殼絕對鎖定在 base.jpg 的正中心 
+        */
+        .wheel-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none; 
+        }
+
+        /* 這裡只鎖定「高度」，透過上面的 aspect-ratio 自動推算寬度，
+           保證是完美的正方形，且絕對不會偏離中心。
+           (若您覺得尺寸稍大或稍小，可微調此處的 % 數)
+        */
+        .mid-wrapper { height: 73.5%; z-index: 2; }
+        .top-wrapper { height: 57.5%; z-index: 3; }
+        .pointer-wrapper { height: 28%; z-index: 10; }
+
+        #mid-layer, #top-layer, #pointer-layer {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            pointer-events: auto; 
+            cursor: grab;
+            touch-action: none; 
+            transform-origin: center center;
+        }
+
+        #mid-layer:active, #top-layer:active, #pointer-layer:active {
+            cursor: grabbing;
+        }
+
+        /* 控制面板設計維持不變 */
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 380px;
+            flex-shrink: 0;
+            margin-left: 40px; 
+            z-index: 10;
+        }
+
+        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+        button {
+            padding: 18px; font-size: 22px; font-weight: bold; border: none;
+            border-radius: 16px; cursor: pointer; transition: all 0.2s; color: white;
+        }
+        .btn-audio { background-color: #4CAF50; }
+        .btn-audio:hover { background-color: #388E3C; transform: scale(1.03); }
+        .btn-success { background-color: #FFC107; color: #333; }
+        .btn-success:hover { background-color: #FFA000; transform: scale(1.03); }
+        hr { width: 100%; border: none; border-top: 2px dashed #ccc; margin: 5px 0; }
+        .scoreboard { text-align: center; }
+        .scoreboard h3 { margin: 0 0 15px 0; color: #333; font-size: 28px;}
+        .team-score { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 24px; font-weight: bold;}
+        .score-btn { padding: 10px 20px; font-size: 22px; border-radius: 12px; background-color: #2196F3; color: white;}
+        .score-btn:hover { background-color: #0b7dda; }
+    </style>
+</head>
+<body>
+    <div class="bg-layer"></div>
+    <div class="header-title">趣味單字拼拼樂</div>
+
+    <div class="game-layout">
+        <div class="wheel-area">
+            <div class="wheel-container">
+                <img src="base.jpg" class="base-layer" alt="底板">
+                
+                <div class="wheel-wrapper mid-wrapper">
+                    <img src="mid.png" id="mid-layer" alt="中層">
+                </div>
+                
+                <div class="wheel-wrapper top-wrapper">
+                    <img src="top.png" id="top-layer" alt="上層">
+                </div>
+                
+                <div class="wheel-wrapper pointer-wrapper">
+                    <svg id="pointer-layer" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="2" dy="6" stdDeviation="4" flood-color="#000" flood-opacity="0.4"/>
+                            </filter>
+                        </defs>
+                        <path d="M 100 15 L 125 100 L 100 120 L 75 100 Z" fill="#E91E63" stroke="#FFFFFF" stroke-width="4" filter="url(#shadow)"/>
+                        <circle cx="100" cy="100" r="20" fill="#333" filter="url(#shadow)"/>
+                        <circle cx="100" cy="100" r="10" fill="#FFEB3B"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="btn-group">
+                <button class="btn-audio" onclick="toggleBGM()" id="bgm-btn">🎵 播放背景音樂</button>
+                <button class="btn-success" onclick="playSuccess()">🎉 答對囉！(音效)</button>
+            </div>
+            <hr>
+            <div class="scoreboard">
+                <h3>分組計分板</h3>
+                <div class="team-score">
+                    <span>第一組：<span id="score1">0</span> 分</span>
+                    <div>
+                        <button class="score-btn" onclick="updateScore(1, 1)">+</button>
+                        <button class="score-btn" onclick="updateScore(1, -1)">-</button>
+                    </div>
+                </div>
+                <div class="team-score">
+                    <span>第二組：<span id="score2">0</span> 分</span>
+                    <div>
+                        <button class="score-btn" onclick="updateScore(2, 1)">+</button>
+                        <button class="score-btn" onclick="updateScore(2, -1)">-</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audio-spin" src="指針音效.m4a" preload="auto"></audio>
+    <audio id="audio-bgm" src="背景音樂.m4a" loop preload="auto"></audio>
+    <audio id="audio-win" src="勝利音效.m4a" preload="auto"></audio>
+
+    <script>
+        const sliceAngle = 360 / 26; 
+        let isBgmPlaying = false;
+
+        const baseSpinSound = document.getElementById('audio-spin');
+        function playTickSound() {
+            const tick = baseSpinSound.cloneNode();
+            tick.volume = 0.6; 
+            tick.play().catch(e => console.log('等待使用者互動'));
+        }
+
+        // 手動拖曳與觸控邏輯
+        function makeDraggable(elementId) {
+            const element = document.getElementById(elementId);
+            let isDragging = false;
+            let currentRotation = 0; 
+            let startAngle = 0;      
+            let previousAngle = 0;   
+            let lastSoundRotation = 0; 
+
+            function getAngle(e) {
+                const rect = element.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                const dx = clientX - centerX;
+                const dy = clientY - centerY;
+                return Math.atan2(dy, dx) * (180 / Math.PI);
+            }
+
+            function onDragStart(e) {
+                e.preventDefault(); 
+                isDragging = true;
+                element.style.transition = 'none';
+                startAngle = getAngle(e);
+                previousAngle = startAngle;
+            }
+
+            function onDragMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+
+                const currentMouseAngle = getAngle(e);
+                let deltaAngle = currentMouseAngle - previousAngle;
+
+                if (deltaAngle > 180) deltaAngle -= 360;
+                if (deltaAngle < -180) deltaAngle += 360;
+
+                currentRotation += deltaAngle;
+                previousAngle = currentMouseAngle;
+
+                element.style.transform = `rotate(${currentRotation}deg)`;
+
+                if (Math.abs(currentRotation - lastSoundRotation) >= sliceAngle) {
+                    playTickSound();
+                    lastSoundRotation = currentRotation;
+                }
+            }
+
+            function onDragEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                element.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+                
+                const snapRotation = Math.round(currentRotation / sliceAngle) * sliceAngle;
+                currentRotation = snapRotation;
+                lastSoundRotation = snapRotation;
+                
+                element.style.transform = `rotate(${currentRotation}deg)`;
+            }
+
+            element.addEventListener('mousedown', onDragStart);
+            window.addEventListener('mousemove', onDragMove);
+            window.addEventListener('mouseup', onDragEnd);
+            element.addEventListener('touchstart', onDragStart, { passive: false });
+            window.addEventListener('touchmove', onDragMove, { passive: false });
+            window.addEventListener('touchend', onDragEnd);
+        }
+
+        makeDraggable('mid-layer');
+        makeDraggable('top-layer');
+        makeDraggable('pointer-layer');
+
+        function toggleBGM() {
+            const bgm = document.getElementById('audio-bgm');
+            const btn = document.getElementById('bgm-btn');
+            if (isBgmPlaying) {
+                bgm.pause();
+                btn.innerText = "🎵 播放背景音樂";
+            } else {
+                bgm.play().catch(e => console.log('瀏覽器阻擋播放'));
+                btn.innerText = "🔇 暫停背景音樂";
+            }
+            isBgmPlaying = !isBgmPlaying;
+        }
+
+        function playSuccess() {
+            const winSound = document.getElementById('audio-win');
+            winSound.currentTime = 0;
+            winSound.play();
+        }
+
+        let scores = { 1: 0, 2: 0 };
+        function updateScore(team, amount) {
+            scores[team] += amount;
+            if (scores[team] < 0) scores[team] = 0;
+            document.getElementById(`score${team}`).innerText = scores[team];
+        }
+    </script>
+</body>
+</html>
