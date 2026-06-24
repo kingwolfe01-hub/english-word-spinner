@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>趣味單字拼拼樂</title>
+    <title>何嘉仁趣味單字拼拼樂</title>
     <style>
         /* 基礎版面設定 */
         body {
@@ -31,7 +31,6 @@
             z-index: -1;
         }
 
-        /* 標題浮動於左上角 */
         .header-title {
             position: absolute;
             top: 20px;
@@ -47,13 +46,10 @@
             z-index: 20;
         }
 
-        /* =========================================
-           ✨ 預設：橫式操作版面 (左右排列)
-           適用於 iPad 橫向、大螢幕觸控板、電腦
-           ========================================= */
+        /* 遊戲全螢幕佈局 */
         .game-layout {
             display: flex;
-            flex-direction: row; /* 強制橫向排列 */
+            flex-direction: row; 
             width: 100%;
             height: 100%;
             align-items: center;
@@ -62,7 +58,7 @@
             box-sizing: border-box;
         }
 
-        /* 轉盤區：奪回最大的顯示比例 */
+        /* 轉盤區 */
         .wheel-area {
             flex: 1; 
             height: 100%;
@@ -77,7 +73,6 @@
             display: inline-block; 
         }
 
-        /* 橫式操作時，轉盤高度可以直逼螢幕頂端與底端 */
         .base-layer {
             max-height: 95vh;
             max-width: 100%; 
@@ -85,9 +80,9 @@
             display: block; 
             border-radius: 20px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            transition: opacity 0.3s ease; /* 切換底圖時加入淡入淡出效果 */
         }
 
-        /* 圖層絕對置中鎖定 */
         .wheel-wrapper {
             position: absolute;
             top: 50%;
@@ -100,7 +95,7 @@
             pointer-events: none; 
         }
 
-        .mid-wrapper { height: 73.5%; z-index: 2; }
+        .mid-wrapper { height: 82%; z-index: 2; }
         .top-wrapper { height: 45%; z-index: 3; }
         .pointer-wrapper { height: 28%; z-index: 10; }
 
@@ -119,23 +114,57 @@
             cursor: grabbing;
         }
 
-        /* =========================================
-           ✨ 右側長條型控制台 (直立式膠囊)
-           ========================================= */
+        /* 控制台 */
         .control-panel {
             background: rgba(255, 255, 255, 0.95);
             padding: 30px 20px;
             border-radius: 40px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             display: flex;
-            flex-direction: column; /* 直立排列按鈕 */
+            flex-direction: column; 
             align-items: center;
             justify-content: center;
-            width: 280px; 
-            height: 90vh; /* 佔據右側 90% 的高度 */
+            width: 300px; 
+            height: 90vh; 
             flex-shrink: 0;
             z-index: 10;
-            gap: 25px;
+            gap: 20px;
+        }
+
+        /* 教材切換選單樣式 */
+        .series-selector {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: center;
+        }
+
+        .series-selector label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .series-selector select {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 20px;
+            font-weight: bold;
+            border: 2px solid #ccc;
+            border-radius: 16px;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+            outline: none;
+            font-family: '微軟正黑體', sans-serif;
+            appearance: none; /* 隱藏預設箭頭，可依喜好保留 */
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .series-selector select:focus {
+            border-color: #2196F3;
         }
 
         .btn-group { 
@@ -168,12 +197,11 @@
             background-color: #ddd;
         }
 
-        /* 記分板內部佈局 */
         .scoreboard { 
             display: flex; 
             flex-direction: column; 
             align-items: center;
-            gap: 20px;
+            gap: 15px;
             width: 100%;
         }
 
@@ -181,7 +209,7 @@
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            gap: 12px; 
+            gap: 10px; 
             background: #f8f9fa;
             padding: 15px;
             border-radius: 20px;
@@ -212,10 +240,7 @@
         }
         .score-btn:hover { background-color: #0b7dda; }
 
-        /* =========================================
-           📱 智慧轉向：直式操作版面 (Portrait)
-           當 iPad 直拿，或使用手機時自動切換
-           ========================================= */
+        /* 響應式：直立與小螢幕 */
         @media (orientation: portrait), (max-width: 800px) {
             .header-title {
                 position: relative;
@@ -225,15 +250,14 @@
             }
 
             .game-layout {
-                flex-direction: column; /* 切換為上下排列 */
+                flex-direction: column; 
                 padding: 10px 15px; 
             }
 
             .base-layer {
-                max-height: 65vh; /* 縮小轉盤，留空間給下方 */
+                max-height: 55vh; 
             }
 
-            /* 控制台變形為底部橫向長條 */
             .control-panel {
                 flex-direction: row; 
                 width: 95%;
@@ -242,7 +266,19 @@
                 border-radius: 30px;
                 gap: 15px;
                 margin-bottom: 10px;
-                flex-wrap: wrap; /* 螢幕太小時允許換行 */
+                flex-wrap: wrap; 
+            }
+
+            .series-selector {
+                width: auto;
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .series-selector select {
+                width: auto;
+                padding: 10px 20px;
+                font-size: 18px;
             }
 
             .btn-group { 
@@ -256,24 +292,9 @@
                 font-size: 18px;
             }
 
-            .divider {
-                width: 2px;
-                height: 40px;
-            }
-
-            .scoreboard { 
-                flex-direction: row; 
-                width: auto;
-                gap: 15px;
-            }
-
-            .team-score { 
-                flex-direction: row; 
-                padding: 8px 15px;
-                gap: 10px;
-                width: auto;
-            }
-
+            .divider { width: 2px; height: 40px; }
+            .scoreboard { flex-direction: row; width: auto; gap: 15px; }
+            .team-score { flex-direction: row; padding: 8px 15px; gap: 10px; width: auto; }
             .team-name { font-size: 18px; }
             .score-btn { padding: 6px 15px; font-size: 18px; }
         }
@@ -287,7 +308,7 @@
     <div class="game-layout">
         <div class="wheel-area">
             <div class="wheel-container">
-                <img src="base.jpg" class="base-layer" alt="底板">
+                <img src="base-WS1.jpg" class="base-layer" id="base-image" alt="底板">
                 
                 <div class="wheel-wrapper mid-wrapper">
                     <img src="mid.png" id="mid-layer" alt="中層">
@@ -313,6 +334,18 @@
         </div>
 
         <div class="control-panel">
+            <div class="series-selector">
+                <label for="bg-selector">📚 選擇教材單元</label>
+                <select id="bg-selector" onchange="changeBaseImage()">
+                    <option value="base-WS1.jpg">Wow Story - 一年級</option>
+                    <option value="base-WS2.jpg">Wow Story - 二年級</option>
+                    <option value="base-FW1.jpg">Fun World - 一年級</option>
+                    <option value="base-FW2.jpg">Fun World - 二年級</option>
+                </select>
+            </div>
+
+            <div class="divider"></div>
+
             <div class="btn-group">
                 <button class="btn-audio" onclick="toggleBGM()" id="bgm-btn">🎵 背景音樂</button>
                 <button class="btn-success" onclick="playSuccess()">🎉 答對囉！</button>
@@ -347,6 +380,19 @@
         const sliceAngle = 360 / 26; 
         let isBgmPlaying = false;
 
+        // --- 全新：切換底圖邏輯 ---
+        function changeBaseImage() {
+            const selector = document.getElementById('bg-selector');
+            const baseImg = document.getElementById('base-image');
+            
+            // 加入簡單的視覺淡出淡入效果
+            baseImg.style.opacity = 0;
+            setTimeout(() => {
+                baseImg.src = selector.value;
+                baseImg.style.opacity = 1;
+            }, 150);
+        }
+
         const baseSpinSound = document.getElementById('audio-spin');
         function playTickSound() {
             const tick = baseSpinSound.cloneNode();
@@ -354,7 +400,6 @@
             tick.play().catch(e => console.log('等待使用者互動'));
         }
 
-        // 手動拖曳與觸控邏輯
         function makeDraggable(elementId) {
             const element = document.getElementById(elementId);
             let isDragging = false;
