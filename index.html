@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>趣味單字拼拼樂</title>
     <style>
+        /* 基礎版面：大螢幕預設為滿版無捲軸 */
         body {
             margin: 0;
             padding: 0;
@@ -13,6 +14,9 @@
             background-color: #f0f4f8;
             overflow: hidden; 
             font-family: '微軟正黑體', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .bg-layer {
@@ -27,6 +31,7 @@
             z-index: -1;
         }
 
+        /* 標題預設為左上角絕對定位 */
         .header-title {
             position: absolute;
             top: 25px;
@@ -42,6 +47,7 @@
             z-index: 20;
         }
 
+        /* 遊戲全螢幕佈局：大螢幕左右排列 */
         .game-layout {
             display: flex;
             width: 100%;
@@ -61,27 +67,21 @@
             min-width: 0; 
         }
 
-        /* 讓容器完全緊貼底板，消除多餘的空白縫隙 */
         .wheel-container {
             position: relative;
-            display: flex; 
-            align-items: center;
-            justify-content: center;
+            display: inline-block; 
         }
 
+        /* 底圖：大螢幕高度撐到螢幕的 90% */
         .base-layer {
             max-height: 90vh;
             max-width: 100%; 
             height: auto;
-            display: block; /* 消除圖片下方的預設空白 */
+            display: block; 
             border-radius: 20px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.25);
         }
 
-        /* 【絕對置中核心修復】
-           使用 50% 加上 translate(-50%, -50%)，
-           保證外殼絕對鎖定在 base.jpg 的正中心 
-        */
         .wheel-wrapper {
             position: absolute;
             top: 50%;
@@ -94,10 +94,6 @@
             pointer-events: none; 
         }
 
-        /* 這裡只鎖定「高度」，透過上面的 aspect-ratio 自動推算寬度，
-           保證是完美的正方形，且絕對不會偏離中心。
-           (若您覺得尺寸稍大或稍小，可微調此處的 % 數)
-        */
         .mid-wrapper { height: 73.5%; z-index: 2; }
         .top-wrapper { height: 57.5%; z-index: 3; }
         .pointer-wrapper { height: 28%; z-index: 10; }
@@ -117,7 +113,7 @@
             cursor: grabbing;
         }
 
-        /* 控制面板設計維持不變 */
+        /* 控制台：大螢幕鎖定在右側 */
         .control-panel {
             background: rgba(255, 255, 255, 0.95);
             padding: 30px;
@@ -147,6 +143,83 @@
         .team-score { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 24px; font-weight: bold;}
         .score-btn { padding: 10px 20px; font-size: 22px; border-radius: 12px; background-color: #2196F3; color: white;}
         .score-btn:hover { background-color: #0b7dda; }
+
+        /* =========================================
+           📱 RWD 響應式設計 (平板與手機版適配) 
+           ========================================= */
+
+        /* 當螢幕寬度小於 1024px (如 iPad 直向或較小筆電) */
+        @media (max-width: 1024px) {
+            body {
+                overflow-y: auto; /* 解開捲軸限制，允許垂直滑動 */
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .header-title {
+                position: relative; /* 取消絕對定位，避免蓋住轉盤 */
+                top: auto;
+                left: auto;
+                margin: 20px auto 10px auto; 
+                text-align: center;
+                font-size: 28px;
+                padding: 12px 30px;
+            }
+
+            .game-layout {
+                flex-direction: column; /* 版面改為上下排列 */
+                padding: 10px 20px; 
+                gap: 25px;
+                height: auto;
+            }
+
+            .wheel-area {
+                width: 100%;
+                min-height: auto; 
+            }
+
+            .base-layer {
+                max-height: 55vh; /* 縮小直向時的轉盤高度，留空間給下方按鈕 */
+                max-width: 95vw;
+            }
+
+            .control-panel {
+                width: 100%;
+                max-width: 500px; /* 控制面板在平板上置中 */
+                margin-left: 0; 
+                margin-bottom: 40px; 
+            }
+        }
+
+        /* 當螢幕寬度小於 600px (如 手機) */
+        @media (max-width: 600px) {
+            .header-title {
+                font-size: 22px;
+                padding: 10px 20px;
+                border-width: 3px;
+                margin-top: 15px;
+            }
+
+            .base-layer {
+                max-height: 45vh; /* 手機螢幕更小，轉盤進一步縮小比例 */
+            }
+
+            .control-panel {
+                padding: 20px;
+                gap: 15px;
+                border-radius: 16px;
+            }
+
+            button {
+                padding: 14px;
+                font-size: 18px;
+                border-radius: 12px;
+            }
+
+            .scoreboard h3 { font-size: 22px; }
+            .team-score { font-size: 18px; margin-bottom: 10px; }
+            .score-btn { padding: 8px 15px; font-size: 18px; }
+        }
     </style>
 </head>
 <body>
