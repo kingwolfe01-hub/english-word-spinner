@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>趣味單字拼拼樂</title>
     <style>
-        /* 基礎版面 */
+        /* 基礎版面設定 */
         body {
             margin: 0;
             padding: 0;
@@ -31,7 +31,7 @@
             z-index: -1;
         }
 
-        /* 懸浮標題 */
+        /* 標題浮動於左上角 */
         .header-title {
             position: absolute;
             top: 20px;
@@ -47,27 +47,29 @@
             z-index: 20;
         }
 
-        /* 遊戲全螢幕佈局：改為上下排列 */
+        /* =========================================
+           ✨ 預設：橫式操作版面 (左右排列)
+           適用於 iPad 橫向、大螢幕觸控板、電腦
+           ========================================= */
         .game-layout {
             display: flex;
-            flex-direction: column;
+            flex-direction: row; /* 強制橫向排列 */
             width: 100%;
             height: 100%;
             align-items: center;
             justify-content: space-between;
-            padding: 15px; 
+            padding: 20px 40px; 
             box-sizing: border-box;
         }
 
-        /* 轉盤區：佔據上方所有空間 */
+        /* 轉盤區：奪回最大的顯示比例 */
         .wheel-area {
             flex: 1; 
-            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 0; /* 確保 Flex 縮放不溢出 */
-            margin-top: 10px;
+            min-width: 0; 
         }
 
         .wheel-container {
@@ -75,17 +77,17 @@
             display: inline-block; 
         }
 
-        /* 底圖：因為底部有控制列，所以高度稍微縮減為 82vh，但寬度解鎖 */
+        /* 橫式操作時，轉盤高度可以直逼螢幕頂端與底端 */
         .base-layer {
-            max-height: 82vh;
-            max-width: 95vw; 
+            max-height: 95vh;
+            max-width: 100%; 
             height: auto;
             display: block; 
             border-radius: 20px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.25);
         }
 
-        /* 轉盤圖層定位 */
+        /* 圖層絕對置中鎖定 */
         .wheel-wrapper {
             position: absolute;
             top: 50%;
@@ -118,115 +120,168 @@
         }
 
         /* =========================================
-           ✨ 全新：底部長條型控制列 (Dock 造型)
+           ✨ 右側長條型控制台 (直立式膠囊)
            ========================================= */
         .control-panel {
             background: rgba(255, 255, 255, 0.95);
-            padding: 15px 40px;
-            border-radius: 50px; /* 圓潤膠囊造型 */
+            padding: 30px 20px;
+            border-radius: 40px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             display: flex;
-            flex-direction: row; /* 橫向排列 */
+            flex-direction: column; /* 直立排列按鈕 */
             align-items: center;
-            justify-content: space-around;
-            width: 90%;
-            max-width: 1400px;
+            justify-content: center;
+            width: 280px; 
+            height: 90vh; /* 佔據右側 90% 的高度 */
             flex-shrink: 0;
             z-index: 10;
-            margin-bottom: 20px;
-            gap: 30px;
+            gap: 25px;
         }
 
         .btn-group { 
             display: flex; 
-            flex-direction: row; /* 按鈕也橫向並排 */
+            flex-direction: column; 
             gap: 15px; 
+            width: 100%;
         }
         
-        button {
-            padding: 12px 24px; 
-            font-size: 20px; 
+        .btn-group button {
+            width: 100%;
+            padding: 16px 10px; 
+            font-size: 22px; 
             font-weight: bold; 
             border: none;
-            border-radius: 30px; 
+            border-radius: 18px; 
             cursor: pointer; 
             transition: all 0.2s; 
             color: white;
-            white-space: nowrap;
         }
         
         .btn-audio { background-color: #4CAF50; }
-        .btn-audio:hover { background-color: #388E3C; transform: scale(1.05); }
+        .btn-audio:hover { background-color: #388E3C; transform: scale(1.03); }
         .btn-success { background-color: #FFC107; color: #333; }
-        .btn-success:hover { background-color: #FFA000; transform: scale(1.05); }
+        .btn-success:hover { background-color: #FFA000; transform: scale(1.03); }
         
-        /* 橫向記分板 */
+        .divider {
+            width: 80%;
+            height: 2px;
+            background-color: #ddd;
+        }
+
+        /* 記分板內部佈局 */
         .scoreboard { 
             display: flex; 
-            flex-direction: row; 
+            flex-direction: column; 
             align-items: center;
-            gap: 40px;
+            gap: 20px;
+            width: 100%;
         }
 
         .team-score { 
             display: flex; 
+            flex-direction: column; 
             align-items: center; 
-            gap: 15px; 
-            font-size: 24px; 
+            gap: 12px; 
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #eee;
+        }
+
+        .team-name {
+            font-size: 22px; 
             font-weight: bold;
             color: #333;
-            white-space: nowrap;
         }
 
         .score-controls {
             display: flex;
-            gap: 8px;
+            gap: 15px;
         }
 
         .score-btn { 
-            padding: 6px 18px; 
-            font-size: 22px; 
+            padding: 8px 25px; 
+            font-size: 24px; 
             border-radius: 12px; 
             background-color: #2196F3; 
             color: white;
+            border: none;
+            cursor: pointer;
         }
         .score-btn:hover { background-color: #0b7dda; }
 
-        /* 分隔線改為垂直直線 */
-        .divider {
-            width: 2px;
-            height: 40px;
-            background-color: #ddd;
-        }
-
         /* =========================================
-           📱 RWD 響應式設計 (平板與手機版適配) 
+           📱 智慧轉向：直式操作版面 (Portrait)
+           當 iPad 直拿，或使用手機時自動切換
            ========================================= */
-        @media (max-width: 1100px) {
+        @media (orientation: portrait), (max-width: 800px) {
+            .header-title {
+                position: relative;
+                top: auto; left: auto;
+                margin: 15px auto 5px auto;
+                text-align: center;
+            }
+
+            .game-layout {
+                flex-direction: column; /* 切換為上下排列 */
+                padding: 10px 15px; 
+            }
+
+            .base-layer {
+                max-height: 65vh; /* 縮小轉盤，留空間給下方 */
+            }
+
+            /* 控制台變形為底部橫向長條 */
             .control-panel {
-                flex-wrap: wrap; /* 螢幕不夠寬時自動換行 */
-                border-radius: 20px;
-                padding: 15px;
+                flex-direction: row; 
+                width: 95%;
+                height: auto;
+                padding: 15px 20px;
+                border-radius: 30px;
+                gap: 15px;
+                margin-bottom: 10px;
+                flex-wrap: wrap; /* 螢幕太小時允許換行 */
+            }
+
+            .btn-group { 
+                flex-direction: row; 
+                width: auto;
+            }
+
+            .btn-group button {
+                width: auto;
+                padding: 12px 20px;
+                font-size: 18px;
+            }
+
+            .divider {
+                width: 2px;
+                height: 40px;
+            }
+
+            .scoreboard { 
+                flex-direction: row; 
+                width: auto;
                 gap: 15px;
             }
-            .divider { display: none; }
-            .header-title {
-                position: relative; 
-                top: auto; left: auto; margin: 15px auto 5px auto; 
-            }
-        }
 
-        @media (max-width: 600px) {
-            body { overflow-y: auto; height: auto; min-height: 100vh; }
-            .header-title { font-size: 22px; margin-top: 15px; }
-            .base-layer { max-height: 50vh; }
-            .scoreboard { flex-direction: column; gap: 10px; width: 100%; }
-            .team-score { width: 100%; justify-content: space-between; }
+            .team-score { 
+                flex-direction: row; 
+                padding: 8px 15px;
+                gap: 10px;
+                width: auto;
+            }
+
+            .team-name { font-size: 18px; }
+            .score-btn { padding: 6px 15px; font-size: 18px; }
         }
     </style>
 </head>
 <body>
     <div class="bg-layer"></div>
+    
     <div class="header-title">趣味單字拼拼樂</div>
 
     <div class="game-layout">
@@ -259,7 +314,7 @@
 
         <div class="control-panel">
             <div class="btn-group">
-                <button class="btn-audio" onclick="toggleBGM()" id="bgm-btn">🎵 播放背景音樂</button>
+                <button class="btn-audio" onclick="toggleBGM()" id="bgm-btn">🎵 背景音樂</button>
                 <button class="btn-success" onclick="playSuccess()">🎉 答對囉！</button>
             </div>
             
@@ -267,14 +322,14 @@
             
             <div class="scoreboard">
                 <div class="team-score">
-                    <span>第一組：<span id="score1">0</span> 分</span>
+                    <span class="team-name">第一組：<span id="score1">0</span> 分</span>
                     <div class="score-controls">
                         <button class="score-btn" onclick="updateScore(1, 1)">+</button>
                         <button class="score-btn" onclick="updateScore(1, -1)">-</button>
                     </div>
                 </div>
                 <div class="team-score">
-                    <span>第二組：<span id="score2">0</span> 分</span>
+                    <span class="team-name">第二組：<span id="score2">0</span> 分</span>
                     <div class="score-controls">
                         <button class="score-btn" onclick="updateScore(2, 1)">+</button>
                         <button class="score-btn" onclick="updateScore(2, -1)">-</button>
@@ -379,10 +434,10 @@
             const btn = document.getElementById('bgm-btn');
             if (isBgmPlaying) {
                 bgm.pause();
-                btn.innerText = "🎵 播放背景音樂";
+                btn.innerText = "🎵 背景音樂";
             } else {
                 bgm.play().catch(e => console.log('瀏覽器阻擋播放'));
-                btn.innerText = "🔇 暫停背景音樂";
+                btn.innerText = "🔇 暫停音樂";
             }
             isBgmPlaying = !isBgmPlaying;
         }
