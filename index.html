@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>趣味單字拼拼樂</title>
     <style>
-        /* 基礎版面：大螢幕預設為滿版無捲軸 */
+        /* 基礎版面 */
         body {
             margin: 0;
             padding: 0;
@@ -31,15 +31,15 @@
             z-index: -1;
         }
 
-        /* 標題預設為左上角絕對定位 */
+        /* 標題 */
         .header-title {
             position: absolute;
-            top: 25px;
-            left: 35px;
+            top: 20px;
+            left: 30px;
             background-color: rgba(255, 255, 255, 0.95);
-            padding: 15px 40px;
+            padding: 12px 30px;
             border-radius: 40px;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: bold;
             color: #333;
             box-shadow: 0 6px 15px rgba(0,0,0,0.15);
@@ -47,17 +47,18 @@
             z-index: 20;
         }
 
-        /* 遊戲全螢幕佈局：大螢幕左右排列 */
+        /* 遊戲全螢幕佈局 */
         .game-layout {
             display: flex;
             width: 100%;
             height: 100%;
             align-items: center;
             justify-content: space-between;
-            padding: 20px 40px; 
+            padding: 15px 30px; 
             box-sizing: border-box;
         }
 
+        /* 轉盤區：賦予最大彈性空間 */
         .wheel-area {
             flex: 1; 
             height: 100%;
@@ -72,9 +73,9 @@
             display: inline-block; 
         }
 
-        /* 底圖：大螢幕高度撐到螢幕的 90% */
+        /* 底圖：極致放大，高度撐到螢幕的 95% */
         .base-layer {
-            max-height: 90vh;
+            max-height: 95vh;
             max-width: 100%; 
             height: auto;
             display: block; 
@@ -82,6 +83,7 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.25);
         }
 
+        /* 轉盤圖層定位 */
         .wheel-wrapper {
             position: absolute;
             top: 50%;
@@ -113,63 +115,72 @@
             cursor: grabbing;
         }
 
-        /* 控制台：大螢幕鎖定在右側 */
+        /* 控制面板：瘦身縮小，讓出空間給轉盤 */
         .control-panel {
             background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 24px;
+            padding: 20px; /* 縮小內距 */
+            border-radius: 20px;
             box-shadow: 0 12px 24px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            width: 380px;
+            gap: 15px; /* 縮小按鈕間距 */
+            width: 320px; /* 從 380px 縮小至 320px */
             flex-shrink: 0;
-            margin-left: 40px; 
+            margin-left: 30px; 
             z-index: 10;
         }
 
-        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+        .btn-group { display: flex; flex-direction: column; gap: 10px; }
+        
         button {
-            padding: 18px; font-size: 22px; font-weight: bold; border: none;
-            border-radius: 16px; cursor: pointer; transition: all 0.2s; color: white;
+            padding: 12px; /* 縮小按鈕高度 */
+            font-size: 18px; /* 縮小按鈕字體 */
+            font-weight: bold; 
+            border: none;
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            color: white;
         }
+        
         .btn-audio { background-color: #4CAF50; }
         .btn-audio:hover { background-color: #388E3C; transform: scale(1.03); }
         .btn-success { background-color: #FFC107; color: #333; }
         .btn-success:hover { background-color: #FFA000; transform: scale(1.03); }
-        hr { width: 100%; border: none; border-top: 2px dashed #ccc; margin: 5px 0; }
+        hr { width: 100%; border: none; border-top: 2px dashed #ccc; margin: 0; }
+        
+        /* 記分板內部字體縮小 */
         .scoreboard { text-align: center; }
-        .scoreboard h3 { margin: 0 0 15px 0; color: #333; font-size: 28px;}
-        .team-score { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 24px; font-weight: bold;}
-        .score-btn { padding: 10px 20px; font-size: 22px; border-radius: 12px; background-color: #2196F3; color: white;}
+        .scoreboard h3 { margin: 0 0 12px 0; color: #333; font-size: 24px;}
+        .team-score { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; font-size: 20px; font-weight: bold;}
+        .score-btn { padding: 8px 16px; font-size: 18px; border-radius: 10px; background-color: #2196F3; color: white;}
         .score-btn:hover { background-color: #0b7dda; }
 
         /* =========================================
            📱 RWD 響應式設計 (平板與手機版適配) 
            ========================================= */
 
-        /* 當螢幕寬度小於 1024px (如 iPad 直向或較小筆電) */
         @media (max-width: 1024px) {
             body {
-                overflow-y: auto; /* 解開捲軸限制，允許垂直滑動 */
+                overflow-y: auto; 
                 height: auto;
                 min-height: 100vh;
             }
 
             .header-title {
-                position: relative; /* 取消絕對定位，避免蓋住轉盤 */
+                position: relative; 
                 top: auto;
                 left: auto;
                 margin: 20px auto 10px auto; 
                 text-align: center;
-                font-size: 28px;
-                padding: 12px 30px;
+                font-size: 26px;
+                padding: 10px 25px;
             }
 
             .game-layout {
-                flex-direction: column; /* 版面改為上下排列 */
+                flex-direction: column; 
                 padding: 10px 20px; 
-                gap: 25px;
+                gap: 20px;
                 height: auto;
             }
 
@@ -179,46 +190,26 @@
             }
 
             .base-layer {
-                max-height: 55vh; /* 縮小直向時的轉盤高度，留空間給下方按鈕 */
+                max-height: 60vh; /* 直向平板稍微放大轉盤 */
                 max-width: 95vw;
             }
 
             .control-panel {
                 width: 100%;
-                max-width: 500px; /* 控制面板在平板上置中 */
+                max-width: 450px; 
                 margin-left: 0; 
                 margin-bottom: 40px; 
             }
         }
 
-        /* 當螢幕寬度小於 600px (如 手機) */
         @media (max-width: 600px) {
-            .header-title {
-                font-size: 22px;
-                padding: 10px 20px;
-                border-width: 3px;
-                margin-top: 15px;
-            }
-
-            .base-layer {
-                max-height: 45vh; /* 手機螢幕更小，轉盤進一步縮小比例 */
-            }
-
-            .control-panel {
-                padding: 20px;
-                gap: 15px;
-                border-radius: 16px;
-            }
-
-            button {
-                padding: 14px;
-                font-size: 18px;
-                border-radius: 12px;
-            }
-
-            .scoreboard h3 { font-size: 22px; }
-            .team-score { font-size: 18px; margin-bottom: 10px; }
-            .score-btn { padding: 8px 15px; font-size: 18px; }
+            .header-title { font-size: 22px; padding: 10px 20px; border-width: 3px; margin-top: 15px;}
+            .base-layer { max-height: 45vh; }
+            .control-panel { padding: 15px; gap: 10px; border-radius: 16px; }
+            button { padding: 10px; font-size: 16px; border-radius: 10px; }
+            .scoreboard h3 { font-size: 20px; }
+            .team-score { font-size: 16px; margin-bottom: 8px; }
+            .score-btn { padding: 6px 12px; font-size: 16px; }
         }
     </style>
 </head>
