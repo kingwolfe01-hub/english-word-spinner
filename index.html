@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>何嘉仁趣味單字拼拼樂</title>
+    <title>趣味單字拼拼樂</title>
     <style>
         /* 基礎版面設定 */
         body {
@@ -80,7 +80,7 @@
             display: block; 
             border-radius: 20px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-            transition: opacity 0.3s ease; /* 切換底圖時加入淡入淡出效果 */
+            transition: opacity 0.3s ease;
         }
 
         .wheel-wrapper {
@@ -99,7 +99,8 @@
         .top-wrapper { height: 45%; z-index: 3; }
         .pointer-wrapper { height: 28%; z-index: 10; }
 
-        #mid-layer, #top-layer, #pointer-layer {
+        /* 只保留中、上層轉盤可以拖曳，鎖定指針避免學生誤觸 */
+        #mid-layer, #top-layer {
             width: 100%;
             height: 100%;
             object-fit: contain;
@@ -110,8 +111,17 @@
             transform-origin: center center;
         }
 
-        #mid-layer:active, #top-layer:active, #pointer-layer:active {
+        #mid-layer:active, #top-layer:active {
             cursor: grabbing;
+        }
+
+        /* 指針獨立樣式，移除拖曳功能 */
+        #pointer-layer {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transform-origin: center center;
+            pointer-events: none; 
         }
 
         /* 控制台 */
@@ -140,11 +150,7 @@
             text-align: center;
         }
 
-        .series-selector label {
-            font-size: 18px;
-            font-weight: bold;
-            color: #555;
-        }
+        .series-selector label { font-size: 18px; font-weight: bold; color: #555; }
 
         .series-selector select {
             width: 100%;
@@ -158,14 +164,11 @@
             cursor: pointer;
             outline: none;
             font-family: '微軟正黑體', sans-serif;
-            appearance: none; /* 隱藏預設箭頭，可依喜好保留 */
             text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        .series-selector select:focus {
-            border-color: #2196F3;
-        }
+        .series-selector select:focus { border-color: #2196F3; }
 
         .btn-group { 
             display: flex; 
@@ -186,16 +189,14 @@
             color: white;
         }
         
+        .btn-spin { background-color: #E91E63; }
+        .btn-spin:hover { background-color: #C2185B; transform: scale(1.03); box-shadow: 0 4px 10px rgba(233, 30, 99, 0.4); }
         .btn-audio { background-color: #4CAF50; }
         .btn-audio:hover { background-color: #388E3C; transform: scale(1.03); }
         .btn-success { background-color: #FFC107; color: #333; }
         .btn-success:hover { background-color: #FFA000; transform: scale(1.03); }
         
-        .divider {
-            width: 80%;
-            height: 2px;
-            background-color: #ddd;
-        }
+        .divider { width: 80%; height: 2px; background-color: #ddd; }
 
         .scoreboard { 
             display: flex; 
@@ -218,80 +219,21 @@
             border: 1px solid #eee;
         }
 
-        .team-name {
-            font-size: 22px; 
-            font-weight: bold;
-            color: #333;
-        }
-
-        .score-controls {
-            display: flex;
-            gap: 15px;
-        }
-
-        .score-btn { 
-            padding: 8px 25px; 
-            font-size: 24px; 
-            border-radius: 12px; 
-            background-color: #2196F3; 
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
+        .team-name { font-size: 22px; font-weight: bold; color: #333; }
+        .score-controls { display: flex; gap: 15px; }
+        .score-btn { padding: 8px 25px; font-size: 24px; border-radius: 12px; background-color: #2196F3; color: white; border: none; cursor: pointer; }
         .score-btn:hover { background-color: #0b7dda; }
 
-        /* 響應式：直立與小螢幕 */
+        /* 響應式設計 */
         @media (orientation: portrait), (max-width: 800px) {
-            .header-title {
-                position: relative;
-                top: auto; left: auto;
-                margin: 15px auto 5px auto;
-                text-align: center;
-            }
-
-            .game-layout {
-                flex-direction: column; 
-                padding: 10px 15px; 
-            }
-
-            .base-layer {
-                max-height: 55vh; 
-            }
-
-            .control-panel {
-                flex-direction: row; 
-                width: 95%;
-                height: auto;
-                padding: 15px 20px;
-                border-radius: 30px;
-                gap: 15px;
-                margin-bottom: 10px;
-                flex-wrap: wrap; 
-            }
-
-            .series-selector {
-                width: auto;
-                flex-direction: row;
-                align-items: center;
-            }
-
-            .series-selector select {
-                width: auto;
-                padding: 10px 20px;
-                font-size: 18px;
-            }
-
-            .btn-group { 
-                flex-direction: row; 
-                width: auto;
-            }
-
-            .btn-group button {
-                width: auto;
-                padding: 12px 20px;
-                font-size: 18px;
-            }
-
+            .header-title { position: relative; top: auto; left: auto; margin: 15px auto 5px auto; text-align: center; }
+            .game-layout { flex-direction: column; padding: 10px 15px; }
+            .base-layer { max-height: 55vh; }
+            .control-panel { flex-direction: row; width: 95%; height: auto; padding: 15px 20px; border-radius: 30px; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; }
+            .series-selector { width: auto; flex-direction: row; align-items: center; }
+            .series-selector select { width: auto; padding: 10px 20px; font-size: 18px; }
+            .btn-group { flex-direction: row; width: auto; }
+            .btn-group button { width: auto; padding: 12px 20px; font-size: 18px; }
             .divider { width: 2px; height: 40px; }
             .scoreboard { flex-direction: row; width: auto; gap: 15px; }
             .team-score { flex-direction: row; padding: 8px 15px; gap: 10px; width: auto; }
@@ -347,6 +289,7 @@
             <div class="divider"></div>
 
             <div class="btn-group">
+                <button class="btn-spin" onclick="spinPointer()">🎲 轉動指針 (出題)</button>
                 <button class="btn-audio" onclick="toggleBGM()" id="bgm-btn">🎵 背景音樂</button>
                 <button class="btn-success" onclick="playSuccess()">🎉 答對囉！</button>
             </div>
@@ -377,15 +320,14 @@
     <audio id="audio-win" src="勝利音效.m4a" preload="auto"></audio>
 
     <script>
-        const sliceAngle = 360 / 26; 
+        const sliceAngle = 360 / 26; // 26個字母的固定角度
         let isBgmPlaying = false;
+        let currentPointerRotation = 0; // 紀錄指針的旋轉角度
 
-        // --- 全新：切換底圖邏輯 ---
         function changeBaseImage() {
             const selector = document.getElementById('bg-selector');
             const baseImg = document.getElementById('base-image');
             
-            // 加入簡單的視覺淡出淡入效果
             baseImg.style.opacity = 0;
             setTimeout(() => {
                 baseImg.src = selector.value;
@@ -398,6 +340,27 @@
             const tick = baseSpinSound.cloneNode();
             tick.volume = 0.6; 
             tick.play().catch(e => console.log('等待使用者互動'));
+        }
+
+        // --- 全新：系統隨機出題 (轉動指針) ---
+        function spinPointer() {
+            // 播放齒輪旋轉音效
+            playTickSound();
+
+            const pointer = document.getElementById('pointer-layer');
+            
+            // 隨機轉動 3~6 圈 (確保有旋轉的視覺效果) 加上隨機的 1~26 格
+            const randomRounds = (Math.floor(Math.random() * 4) + 3) * 360;
+            const randomSlices = Math.floor(Math.random() * 26) * sliceAngle;
+            
+            currentPointerRotation += (randomRounds + randomSlices);
+            
+            // 強制對齊格子，避免停在兩個單字中間
+            currentPointerRotation = Math.round(currentPointerRotation / sliceAngle) * sliceAngle;
+
+            // 加上 4 秒平滑減速的物理動畫
+            pointer.style.transition = 'transform 4s cubic-bezier(0.1, 0.7, 0.1, 1)';
+            pointer.style.transform = `rotate(${currentPointerRotation}deg)`;
         }
 
         function makeDraggable(elementId) {
@@ -470,9 +433,9 @@
             window.addEventListener('touchend', onDragEnd);
         }
 
+        // 初始化中層、上層可以手動拖曳作答 (不再綁定指標)
         makeDraggable('mid-layer');
         makeDraggable('top-layer');
-        makeDraggable('pointer-layer');
 
         function toggleBGM() {
             const bgm = document.getElementById('audio-bgm');
